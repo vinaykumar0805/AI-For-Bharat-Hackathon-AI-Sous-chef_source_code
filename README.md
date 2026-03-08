@@ -94,7 +94,7 @@ BharatChef AI Coach is a production-ready system that:
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     Frontend (HTML/JS)                       │
-│                  http://localhost:8000/ui                    │
+│                  http://18.60.129.134:8000/ui                    │
 └──────────────────────────┬──────────────────────────────────┘
                            │ REST API
 ┌──────────────────────────▼──────────────────────────────────┐
@@ -249,14 +249,14 @@ DATABASE_URL = "sqlite:///./bharatchef.db"
 
 For production, use PostgreSQL:
 ```python
-DATABASE_URL = "postgresql://user:password@localhost/bharatchef"
+DATABASE_URL = "postgresql://user:password@18.60.129.134/bharatchef"
 ```
 
 ### Redis Configuration
 
-Default: localhost:6379
+Default: 18.60.129.134:6379
 ```python
-REDIS_URL = "redis://localhost:6379/0"
+REDIS_URL = "redis://18.60.129.134:6379/0"
 ```
 
 ---
@@ -285,14 +285,14 @@ python main.py
 ```
 
 The application will be available at:
-- **API**: http://localhost:8000
-- **Frontend**: http://localhost:8000/ui
-- **API Docs**: http://localhost:8000/docs
+- **API**: http://18.60.129.134:8000
+- **Frontend**: http://18.60.129.134:8000/ui
+- **API Docs**: http://18.60.129.134:8000/docs
 
 ### Using the Web Interface
 
 1. **Upload Expert Video**
-   - Go to http://localhost:8000/ui
+   - Go to http://18.60.129.134:8000/ui
    - Click "Upload Expert Video"
    - Select video file (MP4, AVI, MOV)
    - Enter dish name and cuisine type
@@ -356,18 +356,18 @@ The application will be available at:
 
 ```bash
 # Upload expert video
-curl -X POST "http://localhost:8000/expert/upload" \
+curl -X POST "http://18.60.129.134:8000/expert/upload" \
   -F "video=@omelette.mp4" \
   -F "name=Omelette" \
   -F "cuisine_type=French"
 
 # Run evaluation
-curl "http://localhost:8000/evaluation/compare?trainee_dish_id=dish_123&expert_dish_id=dish_456&use_ai=true"
+curl "http://18.60.129.134:8000/evaluation/compare?trainee_dish_id=dish_123&expert_dish_id=dish_456&use_ai=true"
 ```
 
 For interactive API documentation, visit:
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+- **Swagger UI**: http://18.60.129.134:8000/docs
+- **ReDoc**: http://18.60.129.134:8000/redoc
 
 ---
 
