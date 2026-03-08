@@ -639,7 +639,7 @@ final = 75%
 ### Production Server
 
 Currently deployed at:
-- **URL**: http://18.60.129.134:3000
+- **URL**: http://18.60.129.134:3000](http://18.60.129.134:8000/ui
 - **Server**: AWS EC2 (t2.medium)
 - **OS**: Amazon Linux 2
 
