@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BharatChef AI Coach</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 153, 51, 0.15), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(19, 136, 8, 0.15), transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.05), transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-size: 56px;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            font-size: 20px;
+            opacity: 0.95;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.85;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 18px 35px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .tab:hover::before {
+            left: 100%;
+        }
+
+        .tab:hover {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #FF9933 0%, #ff8c1a 50%, #ff7700 100%);
+            color: white;
+            font-weight: bold;
+            border-color: #FF9933;
+            box-shadow: 0 15px 50px rgba(255, 153, 51, 0.5);
+        }
+
+        .content {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.98) 100%);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3), 0 0 1px rgba(255,255,255,0.5) inset;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 3px dashed #FF9933;
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, rgba(255,153,51,0.05) 0%, rgba(255,140,26,0.05) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,153,51,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .upload-area:hover::before {
+            opacity: 1;
+        }
+
+        .upload-area:hover {
+            border-color: #ff8c1a;
+            background: linear-gradient(135deg, rgba(255,153,51,0.1) 0%, rgba(255,140,26,0.1) 100%);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255,153,51,0.3);
+        }
+
+        .upload-area.dragover {
+            background: linear-gradient(135deg, rgba(255,153,51,0.15) 0%, rgba(255,140,26,0.15) 100%);
+            border-color: #ff7700;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF9933 0%, #ff8c1a 50%, #ff7700 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255,153,51,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255,153,51,0.6);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-card {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .score-badge {
+            font-size: 36px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
+        }
+
+        .score-excellent { 
+            background: linear-gradient(135deg, #06d6a0 0%, #00b894 50%, #00a383 100%);
+            box-shadow: 0 10px 30px rgba(6,214,160,0.4);
+        }
+        .score-good { 
+            background: linear-gradient(135deg, #4834df 0%, #686de0 50%, #4834df 100%);
+            box-shadow: 0 10px 30px rgba(72,52,223,0.4);
+        }
+        .score-fair { 
+            background: linear-gradient(135deg, #ff6348 0%, #ff4757 50%, #ee5a6f 100%);
+            box-shadow: 0 10px 30px rgba(255,99,72,0.4);
+        }
+        .score-poor { 
+            background: linear-gradient(135deg, #ffa502 0%, #ff7f50 50%, #ff6348 100%);
+            box-shadow: 0 10px 30px rgba(255,165,2,0.4);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #138808 0%, #0f6b06 50%, #0a4d04 100%);
+            transition: width 0.5s ease;
+            box-shadow: 0 0 20px rgba(19, 136, 8, 0.5);
+        }
+
+        .recommendations {
+            margin-top: 30px;
+        }
+
+        .recommendations-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .recommendations-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-right: 15px;
+        }
+
+        .recommendations-count {
+            background: linear-gradient(135deg, #FF9933 0%, #ff8c1a 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255,153,51,0.4);
+        }
+
+        .recommendation {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .recommendation:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateX(5px);
+        }
+
+        .recommendation.critical { 
+            border-left-color: #eb3b5a;
+            background: linear-gradient(to right, rgba(235,59,90,0.08) 0%, white 15%);
+            box-shadow: 0 5px 20px rgba(235,59,90,0.15);
+        }
+        .recommendation.high { 
+            border-left-color: #fa8231;
+            background: linear-gradient(to right, rgba(250,130,49,0.08) 0%, white 15%);
+            box-shadow: 0 5px 20px rgba(250,130,49,0.15);
+        }
+        .recommendation.medium { 
+            border-left-color: #4834df;
+            background: linear-gradient(to right, rgba(72,52,223,0.08) 0%, white 15%);
+            box-shadow: 0 5px 20px rgba(72,52,223,0.15);
+        }
+        .recommendation.low { 
+            border-left-color: #20bf6b;
+            background: linear-gradient(to right, rgba(32,191,107,0.08) 0%, white 15%);
+            box-shadow: 0 5px 20px rgba(32,191,107,0.15);
+        }
+
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .recommendation-category {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+        .recommendation-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .recommendation-priority {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recommendation.critical .recommendation-priority {
+            background: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+            color: white;
+        }
+
+        .recommendation.high .recommendation-priority {
+            background: linear-gradient(135deg, #fa8231 0%, #fd9644 100%);
+            color: white;
+        }
+
+        .recommendation.medium .recommendation-priority {
+            background: linear-gradient(135deg, #4834df 0%, #686de0 100%);
+            color: white;
+        }
+
+        .recommendation.low .recommendation-priority {
+            background: linear-gradient(135deg, #20bf6b 0%, #26de81 100%);
+            color: white;
+        }
+
+        .recommendation-issue {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .recommendation-text {
+            color: #666;
+            line-height: 1.8;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        .recommendation-details {
+            background: rgba(102, 126, 234, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .recommendation-details-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recommendation-details-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .recommendation-details-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .recommendation-details-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .comparison-summary {
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #e8ebff;
+        }
+
+        .comparison-summary-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .comparison-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .comparison-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .comparison-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .comparison-value.good { color: #38ef7d; }
+        .comparison-value.warning { color: #f093fb; }
+        .comparison-value.error { color: #f5576c; }
+
+        .dish-selector {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .form-select:hover {
+            border-color: #FF9933;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #FF9933;
+            box-shadow: 0 0 0 3px rgba(255, 153, 51, 0.2);
+        }
+
+        .form-select option {
+            padding: 10px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👨‍🍳 BharatChef AI Coach</h1>
+            <p>AI-Powered Cooking Skill Evaluation Platform</p>
+            <p class="subtitle">Master the art of cooking with intelligent AI feedback</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('expert')">Expert Upload</button>
+            <button class="tab" onclick="switchTab('trainee')">Trainee Upload</button>
+            <button class="tab" onclick="switchTab('evaluate')">Evaluate</button>
+            <button class="tab" onclick="switchTab('cleanup')">Cleanup</button>
+        </div>
+
+        <div class="content">
+            <!-- Expert Upload Tab -->
+            <div id="expert-tab" class="tab-content active">
+                <h2 style="margin-bottom: 20px;">Upload Expert Video</h2>
+                <p style="color: #666; margin-bottom: 30px;">Upload a cooking video to create an expert reference dish.</p>
+                
+                <div class="form-group">
+                    <label class="form-label" for="expert-cuisine-type">
+                        <span style="color: #FF9933;">Step 1:</span> Cuisine Type *
+                    </label>
+                    <select id="expert-cuisine-type" class="form-select" required>
+                        <option value="">-- Select Cuisine Type --</option>
+                        <option value="Indian">Indian</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Italian">Italian</option>
+                        <option value="Thai">Thai</option>
+                        <option value="Mexican">Mexican</option>
+                        <option value="Japanese">Japanese</option>
+                        <option value="French">French</option>
+                        <option value="Mediterranean">Mediterranean</option>
+                        <option value="American">American</option>
+                        <option value="Korean">Korean</option>
+                        <option value="Vietnamese">Vietnamese</option>
+                        <option value="Middle Eastern">Middle Eastern</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="expert-dish-name">
+                        <span style="color: #FF9933;">Step 2:</span> Dish Name *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="expert-dish-name" 
+                        class="form-select" 
+                        placeholder="e.g., Chicken Tikka Masala, Pad Thai, Margherita Pizza"
+                        style="height: 50px; font-size: 16px;"
+                        required
+                    />
+                    <small style="color: #999; display: block; margin-top: 8px;">
+                        💡 Enter the exact name of the dish you're cooking
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <span style="color: #FF9933;">Step 3:</span> Upload Video *
+                    </label>
+                    <div class="upload-area" id="expert-upload-area" onclick="document.getElementById('expert-file-input').click()">
+                        <div class="upload-icon">🎥</div>
+                        <div class="upload-text">Click to upload or drag and drop</div>
+                        <div class="upload-hint">MP4, AVI, MOV (max 500MB)</div>
+                    </div>
+                    <input type="file" id="expert-file-input" class="file-input" accept="video/*" onchange="handleExpertUpload(event)">
+                </div>
+                
+                <div id="expert-result"></div>
+            </div>
+
+            <!-- Trainee Upload Tab -->
+            <div id="trainee-tab" class="tab-content">
+                <h2 style="margin-bottom: 20px;">Upload Trainee Video</h2>
+                <p style="color: #666; margin-bottom: 30px;">Upload your cooking video with dish name (same as expert workflow).</p>
+                
+                <div class="form-group">
+                    <label class="form-label" for="trainee-cuisine-type">
+                        <span style="color: #138808;">Step 1:</span> Cuisine Type *
+                    </label>
+                    <select id="trainee-cuisine-type" class="form-select" required>
+                        <option value="">-- Select Cuisine Type --</option>
+                        <option value="Indian">Indian</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Italian">Italian</option>
+                        <option value="Thai">Thai</option>
+                        <option value="Mexican">Mexican</option>
+                        <option value="Japanese">Japanese</option>
+                        <option value="French">French</option>
+                        <option value="Mediterranean">Mediterranean</option>
+                        <option value="American">American</option>
+                        <option value="Korean">Korean</option>
+                        <option value="Vietnamese">Vietnamese</option>
+                        <option value="Middle Eastern">Middle Eastern</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="trainee-dish-name">
+                        <span style="color: #138808;">Step 2:</span> Dish Name *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="trainee-dish-name" 
+                        class="form-select" 
+                        placeholder="e.g., Chicken Tikka Masala, Pad Thai, Margherita Pizza"
+                        style="height: 50px; font-size: 16px;"
+                        required
+                    />
+                    <small style="color: #999; display: block; margin-top: 8px;">
+                        💡 Enter the exact name of the dish you're cooking
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <span style="color: #138808;">Step 3:</span> Upload Video *
+                    </label>
+                    <div class="upload-area" id="trainee-upload-area" onclick="document.getElementById('trainee-file-input').click()">
+                        <div class="upload-icon">🎥</div>
+                        <div class="upload-text">Click to upload or drag and drop</div>
+                        <div class="upload-hint">MP4, AVI, MOV (max 500MB)</div>
+                    </div>
+                    <input type="file" id="trainee-file-input" class="file-input" accept="video/*" onchange="handleTraineeUpload(event)">
+                </div>
+                
+                <div id="trainee-result"></div>
+            </div>
+
+            <!-- Evaluate Tab -->
+            <div id="evaluate-tab" class="tab-content">
+                <h2 style="margin-bottom: 20px;">Evaluate Performance</h2>
+                <p style="color: #666; margin-bottom: 30px;">Compare trainee performance against expert reference.</p>
+                
+                <div class="dish-selector">
+                    <div class="form-group">
+                        <label class="form-label" for="trainee-select">Select Trainee Dish</label>
+                        <select id="trainee-select" class="form-select" onchange="selectTraineeDish()">
+                            <option value="">-- Choose a trainee dish --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="dish-selector">
+                    <div class="form-group">
+                        <label class="form-label" for="expert-select">Select Expert Dish</label>
+                        <select id="expert-select" class="form-select" onchange="selectExpertDish()">
+                            <option value="">-- Choose an expert dish --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="runEvaluation()" id="evaluate-btn" disabled>
+                        🔍 Run Evaluation
+                    </button>
+                </div>
+
+                <div id="evaluation-result"></div>
+            </div>
+
+            <!-- Cleanup Tab -->
+            <div id="cleanup-tab" class="tab-content">
+                <h2 style="margin-bottom: 20px;">🗑️ Cleanup Database</h2>
+                <p style="color: #666; margin-bottom: 30px;">Delete dishes and all associated videos and evaluations. This action cannot be undone!</p>
+                
+                <div class="dish-selector">
+                    <div class="form-group">
+                        <label class="form-label">Select Category</label>
+                        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                            <button class="btn btn-primary" onclick="loadCleanupDishes('expert')" style="flex: 1;">
+                                👨‍🍳 Expert Dishes
+                            </button>
+                            <button class="btn btn-primary" onclick="loadCleanupDishes('trainee')" style="flex: 1;">
+                                🎓 Trainee Dishes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cleanup-dishes-container" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="cleanup-dish-select">Select Dish to Delete</label>
+                        <select id="cleanup-dish-select" class="form-select">
+                            <option value="">-- Choose a dish to delete --</option>
+                        </select>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn" onclick="confirmDelete()" id="delete-btn" disabled
+                            style="background: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%); color: white; box-shadow: 0 10px 30px rgba(235,59,90,0.4);">
+                            🗑️ Delete Dish
+                        </button>
+                    </div>
+                </div>
+
+                <div id="cleanup-result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://18.60.129.134:8000';
+        let selectedTraineeDish = null;
+        let selectedExpertDish = null;
+        let cleanupCategory = null;
+        let cleanupDishes = [];
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`${tab}-tab`).classList.add('active');
+
+            // Load dishes if evaluate tab
+            if (tab === 'evaluate') {
+                loadDishes();
+            }
+            
+            // Reset cleanup tab
+            if (tab === 'cleanup') {
+                document.getElementById('cleanup-dishes-container').style.display = 'none';
+                document.getElementById('cleanup-result').innerHTML = '';
+                cleanupCategory = null;
+            }
+        }
+
+        // Drag and drop handlers
+        ['expert-upload-area', 'trainee-upload-area'].forEach(id => {
+            const area = document.getElementById(id);
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, preventDefaults, false);
+            });
+            ['dragenter', 'dragover'].forEach(eventName => {
+                area.addEventListener(eventName, () => area.classList.add('dragover'), false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, () => area.classList.remove('dragover'), false);
+            });
+            area.addEventListener('drop', handleDrop, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            const id = e.target.closest('.upload-area').id;
+            
+            if (id === 'expert-upload-area') {
+                handleExpertUpload({ target: { files } });
+            } else {
+                handleTraineeUpload({ target: { files } });
+            }
+        }
+
+        async function handleExpertUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const resultDiv = document.getElementById('expert-result');
+            const cuisineType = document.getElementById('expert-cuisine-type').value;
+            const dishName = document.getElementById('expert-dish-name').value.trim();
+            
+            // Validation
+            if (!cuisineType) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        ❌ Please select a cuisine type
+                    </div>
+                `;
+                return;
+            }
+            
+            if (!dishName) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        ❌ Please enter a dish name
+                    </div>
+                `;
+                return;
+            }
+            
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing expert video for "${dishName}"...</p>
+                    <p style="color: #666; font-size: 14px; margin-top: 10px;">Running 4 AI agents with ${cuisineType} cuisine context (30-45 seconds)</p>
+                </div>
+            `;
+
+            const formData = new FormData();
+            formData.append('video', file);
+            formData.append('cuisine_type', cuisineType);
+            formData.append('dish_name', dishName);
+
+            try {
+                const response = await fetch(`${API_BASE}/expert/upload-advanced`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            ✅ Expert dish "${dishName}" created successfully!
+                        </div>
+                        <div class="result-card">
+                            <h3>${data.dish_info.name}</h3>
+                            <p><strong>Cuisine:</strong> ${data.dish_info.cuisine_type}</p>
+                            <p><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(0)}%</p>
+                            <p><strong>Dish ID:</strong> ${data.dish_string_id}</p>
+                            <p><strong>Ingredients Detected:</strong> ${data.dish_info.ingredients.length}</p>
+                            <p><strong>Steps Detected:</strong> ${data.dish_info.steps.length}</p>
+                            <details style="margin-top: 15px;">
+                                <summary style="cursor: pointer; color: #FF9933; font-weight: 600;">View Ingredients</summary>
+                                <p style="margin-top: 10px;">${data.dish_info.ingredients.join(', ')}</p>
+                            </details>
+                        </div>
+                        <div class="alert alert-info">
+                            💡 Trainees can now select "${dishName}" when uploading their videos!
+                        </div>
+                    `;
+                    
+                    // Clear form
+                    document.getElementById('expert-dish-name').value = '';
+                    document.getElementById('expert-file-input').value = '';
+                } else if (data.status === 'exists') {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-warning">
+                            ⚠️ Expert dish "${dishName}" already exists!
+                        </div>
+                        <div class="result-card">
+                            <h3>${data.dish_info.name}</h3>
+                            <p><strong>Dish ID:</strong> ${data.dish_string_id}</p>
+                            <p>This dish is already in the database. Please use a different name or update the existing dish.</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            ❌ Upload failed: ${data.detail || data.message || 'Unknown error'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function handleTraineeUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const resultDiv = document.getElementById('trainee-result');
+            const cuisineType = document.getElementById('trainee-cuisine-type').value;
+            const dishName = document.getElementById('trainee-dish-name').value.trim();
+            
+            // Validation
+            if (!cuisineType) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        ❌ Please select a cuisine type
+                    </div>
+                `;
+                return;
+            }
+            
+            if (!dishName) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        ❌ Please enter a dish name
+                    </div>
+                `;
+                return;
+            }
+            
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing trainee video for "${dishName}"...</p>
+                    <p style="color: #666; font-size: 14px; margin-top: 10px;">Running 4 AI agents with ${cuisineType} cuisine context (30-45 seconds)</p>
+                </div>
+            `;
+
+            const formData = new FormData();
+            formData.append('video', file);
+            formData.append('cuisine_type', cuisineType);
+            formData.append('dish_name', dishName);
+
+            try {
+                const response = await fetch(`${API_BASE}/trainee/upload-advanced`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            ✅ Trainee dish "${dishName}" created successfully!
+                        </div>
+                        <div class="result-card">
+                            <h3>${data.dish_info.name}</h3>
+                            <p><strong>Cuisine:</strong> ${data.dish_info.cuisine_type}</p>
+                            <p><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(0)}%</p>
+                            <p><strong>Dish ID:</strong> ${data.dish_string_id}</p>
+                            <p><strong>Ingredients Detected:</strong> ${data.dish_info.ingredients.length}</p>
+                            <p><strong>Steps Detected:</strong> ${data.dish_info.steps.length}</p>
+                            <details style="margin-top: 15px;">
+                                <summary style="cursor: pointer; color: #138808; font-weight: 600;">View Ingredients</summary>
+                                <p style="margin-top: 10px;">${data.dish_info.ingredients.join(', ')}</p>
+                            </details>
+                        </div>
+                        <div class="alert alert-info">
+                            💡 Go to the <strong>Evaluate</strong> tab to compare this trainee video with an expert dish!
+                        </div>
+                    `;
+                    
+                    // Clear form
+                    document.getElementById('trainee-dish-name').value = '';
+                    document.getElementById('trainee-file-input').value = '';
+                } else if (data.status === 'exists') {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-warning">
+                            ⚠️ Dish "${dishName}" already exists!
+                        </div>
+                        <div class="result-card">
+                            <h3>${data.dish_info.name}</h3>
+                            <p><strong>Dish ID:</strong> ${data.dish_string_id}</p>
+                            <p>Trainee video linked to existing dish.</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            ❌ Upload failed: ${data.detail || data.message || 'Unknown error'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function loadDishes() {
+            try {
+                const response = await fetch(`${API_BASE}/dishes`);
+                const data = await response.json();
+                
+                // API returns {dishes: [...], total: number}
+                const allDishes = data.dishes || [];
+
+                const traineeDishes = allDishes.filter(d => !d.expert_video_id);
+                const expertDishes = allDishes.filter(d => d.expert_video_id);
+
+                // Populate trainee dropdown
+                const traineeSelect = document.getElementById('trainee-select');
+                traineeSelect.innerHTML = '<option value="">-- Choose a trainee dish --</option>';
+                if (traineeDishes.length > 0) {
+                    traineeDishes.forEach(d => {
+                        const option = document.createElement('option');
+                        option.value = d.dish_id;
+                        option.textContent = `${d.name} (${d.cuisine_type || 'Unknown'})`;
+                        traineeSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No trainee dishes yet. Upload a trainee video first!';
+                    option.disabled = true;
+                    traineeSelect.appendChild(option);
+                }
+
+                // Populate expert dropdown
+                const expertSelect = document.getElementById('expert-select');
+                expertSelect.innerHTML = '<option value="">-- Choose an expert dish --</option>';
+                if (expertDishes.length > 0) {
+                    expertDishes.forEach(d => {
+                        const option = document.createElement('option');
+                        option.value = d.dish_id;
+                        option.textContent = `${d.name} (${d.cuisine_type || 'Unknown'})`;
+                        expertSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No expert dishes yet. Upload an expert video first!';
+                    option.disabled = true;
+                    expertSelect.appendChild(option);
+                }
+
+            } catch (error) {
+                console.error('Error loading dishes:', error);
+                alert('Error loading dishes. Please check if the API is running.');
+            }
+        }
+
+        function selectTraineeDish() {
+            const select = document.getElementById('trainee-select');
+            selectedTraineeDish = select.value;
+            updateEvaluateButton();
+        }
+
+        function selectExpertDish() {
+            const select = document.getElementById('expert-select');
+            selectedExpertDish = select.value;
+            updateEvaluateButton();
+        }
+
+        function updateEvaluateButton() {
+            const btn = document.getElementById('evaluate-btn');
+            btn.disabled = !(selectedTraineeDish && selectedExpertDish);
+        }
+
+        async function runEvaluation() {
+            const resultDiv = document.getElementById('evaluation-result');
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Running AI semantic evaluation...</p>
+                    <p style="color: #666; font-size: 14px; margin-top: 10px;">Comparing ingredients, steps, and timing</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(
+                    `${API_BASE}/evaluation/compare?trainee_dish_id=${selectedTraineeDish}&expert_dish_id=${selectedExpertDish}&use_ai=true`
+                );
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    displayEvaluationResults(data);
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            ❌ Evaluation failed: ${data.detail || 'Unknown error'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displayEvaluationResults(data) {
+            const overall = data.overall_evaluation;
+            const detailed = data.detailed_comparison;
+            const recommendations = data.recommendations;
+
+            let scoreClass = 'score-good';
+            if (overall.overall_score >= 90) scoreClass = 'score-excellent';
+            else if (overall.overall_score >= 70) scoreClass = 'score-good';
+            else if (overall.overall_score >= 50) scoreClass = 'score-fair';
+            else scoreClass = 'score-poor';
+
+            // Get category icons
+            const categoryIcons = {
+                'Ingredients': '🥘',
+                'Steps': '👨‍🍳',
+                'Timing': '⏱️',
+                'Technique': '🔪',
+                'Overall': '⭐'
+            };
+
+            const resultDiv = document.getElementById('evaluation-result');
+            resultDiv.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-title">${overall.performance_level}</div>
+                        <div class="score-badge ${scoreClass}">${overall.overall_score}/100</div>
+                    </div>
+                    <p style="color: #666; margin-bottom: 20px; font-size: 16px;">${overall.message}</p>
+
+                    <!-- Comparison Summary -->
+                    <div class="comparison-summary">
+                        <div class="comparison-summary-title">📊 Detailed Comparison</div>
+                        <div class="comparison-grid">
+                            <div class="comparison-item">
+                                <div class="comparison-label">Matched Ingredients</div>
+                                <div class="comparison-value ${detailed.ingredients.matched_count >= (detailed.ingredients.matched_count + detailed.ingredients.missing_count) * 0.8 ? 'good' : 'warning'}">
+                                    ${detailed.ingredients.matched_count || 0}/${(detailed.ingredients.matched_count || 0) + (detailed.ingredients.missing_count || 0)}
+                                </div>
+                            </div>
+                            <div class="comparison-item">
+                                <div class="comparison-label">Missing Ingredients</div>
+                                <div class="comparison-value ${detailed.ingredients.missing_count === 0 ? 'good' : 'error'}">
+                                    ${detailed.ingredients.missing_count || 0}
+                                </div>
+                            </div>
+                            <div class="comparison-item">
+                                <div class="comparison-label">Matched Steps</div>
+                                <div class="comparison-value ${detailed.steps.matched_count >= (detailed.steps.matched_count + detailed.steps.missed_count) * 0.8 ? 'good' : 'warning'}">
+                                    ${detailed.steps.matched_count || 0}/${(detailed.steps.matched_count || 0) + (detailed.steps.missed_count || 0)}
+                                </div>
+                            </div>
+                            <div class="comparison-item">
+                                <div class="comparison-label">Time Difference</div>
+                                <div class="comparison-value ${Math.abs(detailed.timing.time_difference_percent || 0) < 10 ? 'good' : 'warning'}">
+                                    ${Math.abs(detailed.timing.time_difference_percent || 0).toFixed(1)}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Scores -->
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-label">🥘 Ingredients</div>
+                            <div class="metric-value">${detailed.ingredients.score}/100</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${detailed.ingredients.score}%"></div>
+                            </div>
+                            <p style="font-size: 12px; color: #999; margin-top: 8px;">${detailed.ingredients.message}</p>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">👨‍🍳 Steps</div>
+                            <div class="metric-value">${detailed.steps.score}/100</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${detailed.steps.score}%"></div>
+                            </div>
+                            <p style="font-size: 12px; color: #999; margin-top: 8px;">${detailed.steps.message}</p>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">⏱️ Timing</div>
+                            <div class="metric-value">${detailed.timing.score}/100</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${detailed.timing.score}%"></div>
+                            </div>
+                            <p style="font-size: 12px; color: #999; margin-top: 8px;">${detailed.timing.message}</p>
+                        </div>
+                    </div>
+
+                    <!-- AI Recommendations - Group by category to avoid duplicates -->
+                    <div class="recommendations">
+                        <div class="recommendations-header">
+                            <div class="recommendations-title">💡 AI Recommendations</div>
+                            <div class="recommendations-count">${recommendations.length} ${recommendations.length === 1 ? 'Item' : 'Items'}</div>
+                        </div>
+                        ${(() => {
+                            // Group recommendations by category
+                            const grouped = {};
+                            recommendations.forEach(rec => {
+                                if (!grouped[rec.category]) {
+                                    grouped[rec.category] = [];
+                                }
+                                grouped[rec.category].push(rec);
+                            });
+                            
+                            // Display each category once with all its recommendations combined
+                            return Object.entries(grouped).map(([category, recs]) => {
+                                const icon = categoryIcons[category] || '📌';
+                                
+                                // Get highest priority from all recommendations in this category
+                                const priorities = ['critical', 'high', 'medium', 'low'];
+                                const highestPriority = priorities.find(p => recs.some(r => r.priority === p)) || 'medium';
+                                
+                                // Combine all issues and recommendations
+                                const combinedContent = recs.map((rec, idx) => {
+                                    const detailsList = rec.details && rec.details.length > 0 ? `
+                                        <div class="recommendation-details" style="margin-top: 15px;">
+                                            <div class="recommendation-details-title">💡 Why This Matters:</div>
+                                            <ul class="recommendation-details-list">
+                                                ${rec.details.map(detail => `<li>${detail}</li>`).join('')}
+                                            </ul>
+                                        </div>
+                                    ` : '';
+                                    
+                                    return `
+                                        ${idx > 0 ? '<div style="border-top: 1px solid #e0e0e0; margin: 20px 0;"></div>' : ''}
+                                        <div class="recommendation-issue">
+                                            ${rec.issue}
+                                        </div>
+                                        <div class="recommendation-text">
+                                            ${rec.recommendation}
+                                        </div>
+                                        ${detailsList}
+                                    `;
+                                }).join('');
+                                
+                                return `
+                                    <div class="recommendation ${highestPriority}">
+                                        <div class="recommendation-header">
+                                            <div class="recommendation-category">
+                                                <span class="recommendation-icon">${icon}</span>
+                                                ${category}
+                                            </div>
+                                            <span class="recommendation-priority">${highestPriority}</span>
+                                        </div>
+                                        ${combinedContent}
+                                    </div>
+                                `;
+                            }).join('');
+                        })()}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Cleanup functions
+        async function loadCleanupDishes(category) {
+            cleanupCategory = category;
+            const container = document.getElementById('cleanup-dishes-container');
+            const select = document.getElementById('cleanup-dish-select');
+            const resultDiv = document.getElementById('cleanup-result');
+            
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading ${category} dishes...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`${API_BASE}/dishes`);
+                const data = await response.json();
+                
+                const allDishes = data.dishes || [];
+                
+                // Filter by category
+                if (category === 'expert') {
+                    cleanupDishes = allDishes.filter(d => d.expert_video_id);
+                } else {
+                    cleanupDishes = allDishes.filter(d => !d.expert_video_id);
+                }
+                
+                // Populate dropdown
+                select.innerHTML = '<option value="">-- Choose a dish to delete --</option>';
+                
+                if (cleanupDishes.length > 0) {
+                    cleanupDishes.forEach(d => {
+                        const option = document.createElement('option');
+                        option.value = d.dish_id;
+                        option.textContent = `${d.name} (${d.cuisine_type || 'Unknown'}) - ID: ${d.dish_id}`;
+                        select.appendChild(option);
+                    });
+                    
+                    container.style.display = 'block';
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-info">
+                            📋 Found ${cleanupDishes.length} ${category} ${cleanupDishes.length === 1 ? 'dish' : 'dishes'}. Select one to delete.
+                        </div>
+                    `;
+                } else {
+                    container.style.display = 'none';
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-info">
+                            ℹ️ No ${category} dishes found in database.
+                        </div>
+                    `;
+                }
+                
+                // Enable/disable delete button
+                select.onchange = function() {
+                    document.getElementById('delete-btn').disabled = !this.value;
+                };
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        ❌ Error loading dishes: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function confirmDelete() {
+            const select = document.getElementById('cleanup-dish-select');
+            const dishId = select.value;
+            
+            if (!dishId) {
+                alert('Please select a dish to delete');
+                return;
+            }
+            
+            const dish = cleanupDishes.find(d => d.dish_id === dishId);
+            if (!dish) {
+                alert('Dish not found');
+                return;
+            }
+            
+            // Confirm deletion
+            const confirmed = confirm(
+                `⚠️ WARNING: This will permanently delete:\n\n` +
+                `Dish: ${dish.name}\n` +
+                `Category: ${cleanupCategory}\n` +
+                `Dish ID: ${dishId}\n\n` +
+                `This will also delete:\n` +
+                `- All videos associated with this dish\n` +
+                `- All evaluations for this dish\n\n` +
+                `This action CANNOT be undone!\n\n` +
+                `Are you sure you want to continue?`
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+            
+            await deleteDish(dishId);
+        }
+
+        async function deleteDish(dishId) {
+            const resultDiv = document.getElementById('cleanup-result');
+            
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Deleting dish and all associated data...</p>
+                </div>
+            `;
+            
+            try {
+                const endpoint = cleanupCategory === 'expert' 
+                    ? `${API_BASE}/expert/cleanup/${dishId}`
+                    : `${API_BASE}/trainee/cleanup/${dishId}`;
+                
+                const response = await fetch(endpoint, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            ✅ ${data.message}
+                        </div>
+                        <div class="result-card">
+                            <h3>Deletion Summary</h3>
+                            <p><strong>Dish:</strong> ${data.deleted.dish_name}</p>
+                            <p><strong>Dish ID:</strong> ${data.deleted.dish_id}</p>
+                            <p><strong>Videos Deleted:</strong> ${data.deleted.videos_deleted}</p>
+                            <p><strong>Evaluations Deleted:</strong> ${data.deleted.evaluations_deleted}</p>
+                        </div>
+                    `;
+                    
+                    // Reload the dishes list
+                    setTimeout(() => {
+                        loadCleanupDishes(cleanupCategory);
+                    }, 2000);
+                    
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            ❌ Deletion failed: ${data.detail || 'Unknown error'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
