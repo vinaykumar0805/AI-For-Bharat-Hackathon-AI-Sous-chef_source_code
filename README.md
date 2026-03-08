@@ -639,7 +639,7 @@ final = 75%
 ### Production Server
 
 Currently deployed at:
-- **URL**: http://18.60.129.134:3000](http://18.60.129.134:8000/ui
+- **URL**: http://18.60.129.134:8000/ui
 - **Server**: AWS EC2 (t2.medium)
 - **OS**: Amazon Linux 2
 
@@ -696,7 +696,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - `PREREQUISITES.md` - Setup requirements
 - `BHARATCHEF_CODE_DOCUMENTATION.md` - Complete code explanation
-- API Docs: http://localhost:8000/docs
+- API Docs: http://18.60.129.134:8000/docs
 
 ### Contact
 
